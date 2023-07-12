@@ -5,7 +5,6 @@ const url = require('url');
 
 const app = express();
 const client = express();
-const server = http.createServer(app);
 
 // Premier port avec endpoint SSE /connect
 const ssePort = 3000;
@@ -33,10 +32,10 @@ client.get('/connect', (req, res) => {
 
 // Deuxième port qui redirige les requêtes vers SSE
 const redirectPort = 4000;
+app.use(express.text({type:'*/*'}));
 
-app.use((req, res) => {
+app.all('/*',(req, res) => {
     const { headers, method, url: requestUrl, body } = req;
-
     // Construire l'objet JSON avec les informations de la requête
     const requestData = {
         headers,
@@ -58,6 +57,6 @@ client.listen(ssePort, () => {
     console.log(`Serveur SSE écoutant sur le port ${ssePort}`);
 });
 
-server.listen(redirectPort, () => {
+app.listen(redirectPort, () => {
     console.log(`Serveur de redirection écoutant sur le port ${redirectPort}`);
 });
